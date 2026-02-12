@@ -1,0 +1,8 @@
+{
+  "lastChecks": {
+    "cryptoartFeed": "2026-02-12T15:12:00Z",
+    "mentions": "2026-02-12T15:12:00Z",
+    "gitStatus": "2026-02-12T15:12:00Z"
+  },
+  "notes": "fc_thread.sh partially fixed - needs full refactor for child processing loop"
+}
