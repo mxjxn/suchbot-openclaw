@@ -117,6 +117,11 @@ fi
 # Process and post children
 CHILD_COUNT=0
 for arg in "$@"; do
+  # Skip processing if there are no children after root
+  if [[ $# -eq 0 ]]; then
+    echo -e "${YELLOW}No children to process. Thread complete with root cast only.${NC}"
+    break
+  fi
   case "$arg" in
     --text)
       CHILD_TEXT="$2"
