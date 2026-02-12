@@ -8,6 +8,7 @@ NEYNAR_BASE="https://api.neynar.com/v2/farcaster"
 API_KEY="${NEYNAR_API_KEY:-}"
 SIGNER="${NEYNAR_SIGNER_UUID:-}"
 CHANNEL=""
+CHILD_TEXTS=()
 
 # Colors for output
 RED='\033[0;31m'
@@ -62,7 +63,7 @@ while [[ $# -gt 0 ]]; do
     --api-key) API_KEY="$2"; shift 2 ;;
     --signer) SIGNER="$2"; shift 2 ;;
     --channel) CHANNEL="$2"; shift 2 ;;
-    --text) TEXT="$2"; shift 2 ;;
+    --text) CHILD_TEXTS+=("$2"); shift 2 ;;
     --listing) LISTINGS+=("$2"); shift 2 ;;
     --artwork) ARTWORKS+=("$2"); shift 2 ;;
     --auction) AUCTION_TYPE="$2"; shift 2 ;;
