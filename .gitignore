@@ -1,0 +1,53 @@
+# OpenClaw workspace - keep private, use a private GitHub repo
+# See: https://docs.openclaw.ai/concepts/agent-workspace
+
+# Environment and secrets (never commit)
+.env
+.env.*
+!.env.example
+**/secrets/
+*.key
+*.pem
+
+# Dependencies
+node_modules/
+**/node_modules/
+.pnpm-store/
+
+# Build outputs
+dist/
+build/
+.astro/
+.next/
+out/
+*.tsbuildinfo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Upstream OpenClaw source (clone separately for development)
+openclaw-repo/
+
+# Nested projects with their own repos (add as submodules if desired)
+cryptoart-studio/
+web/
+erc8004-setup/siwa/
+
+# Turborepo
+.turbo
+
+# Testing
+coverage/
+.nyc_output/

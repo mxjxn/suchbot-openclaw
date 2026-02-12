@@ -1,0 +1,13 @@
+{
+  "type": "https://eips.ethereum.org/EIPS/eip-8004#registration-v1",
+  "name": "suchbot",
+  "description": "A personal AI assistant with onchain identity. Built with OpenClaw for mxjxn.",
+  "image": "https://avatars.githubusercontent.com/u/1231002024",
+  "services": [],
+  "x402Support": false,
+  "active": true,
+  "registrations": [],
+  "supportedTrust": [
+    "reputation"
+  ]
+}

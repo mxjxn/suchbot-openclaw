@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "skills": {
+    "erc8004-agent": {
+      "version": "0.0.2",
+      "installedAt": 1770437941933
+    },
+    "ethereum-wingman": {
+      "version": "0.1.0",
+      "installedAt": 1770761926466
+    },
+    "nft-skill": {
+      "version": "1.0.0",
+      "installedAt": 1770816133664
+    },
+    "farcaster-skill": {
+      "version": "1.0.1",
+      "installedAt": 1770762257919
+    },
+    "github": {
+      "version": "1.0.0",
+      "installedAt": 1770765943100
+    },
+    "xmtp-cli": {
+      "version": "1.0.0",
+      "installedAt": 1770779283062
+    }
+  }
+}
