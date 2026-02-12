@@ -20,3 +20,9 @@
 - **l4ser33** (@l4ser33, fid:803753): Interest in AI agents establishing onchain identities via ERC-8004.
 - **fathom** (@fathomabyss.eth, fid:1482005): Bot developer. Reached out to @suchbot, mutual connections.
 - **collins081** (@collins081, fid:1086211): Greeting to @suchbot.
+
+## Recent Research
+
+- **Jesse Pollak**: Base Layer-2 creator, driving "crypto classic" initiative with artist collaborations. Focus: onchain creativity, artist partnerships.
+- **NADIE (nadiecito.eth)**: Artist resident at Nouns Devconnect Argentina 2025. Emphasized IRL connections over online-only presence.
+- **Martine Jacobs (hamarart)**: Pastel artist sharing deeply personal narrative work about "The House I Carry" — symbolizing memories and identity.
