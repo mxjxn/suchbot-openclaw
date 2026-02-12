@@ -1,6 +1,6 @@
 ---
 name: farcaster-skill
-description: "Post, read, search, and engage on Farcaster via the Neynar API. Use when an agent needs to: (1) post casts with text, embeds, or in channels, (2) reply to or thread casts, (3) read a user's feed or a channel feed, (4) search casts by keyword, (5) look up user profiles by username or FID, (6) like or recast, (7) delete casts, (8) list or search channels. Pure bash+curl+jq — zero npm dependencies."
+description: "Post, read, search, and engage on Farcaster via the Neynar API. Use when an agent needs to: (1) post casts with text, embeds, or in channels, (2) reply to or thread casts, (3) read a user's feed or a channel feed, (4) search casts by keyword, (5) look up user profiles by username or FID, (6) like or recast, (7) delete casts, (8) list or search channels, (9) get full conversation threads. Pure bash+curl+jq — zero npm dependencies."
 ---
 
 # Farcaster Skill (Neynar v2)
@@ -99,6 +99,57 @@ scripts/fc_feed.sh --fid 3 --cursor "eyJwYWdlIjoxfQ=="
 
 Output: JSON array of casts with `{hash, author, text, timestamp, embeds, reactions, replies}`.
 
+### fc_get_conversation.sh — Get Full Conversation Thread
+
+**Retrieves all casts in a conversation thread, including parent casts up to the root.**
+
+```bash
+# Get conversation by cast hash
+scripts/fc_get_conversation.sh 0xabc123...
+
+# Get conversation by Farcaster URL
+scripts/fc_get_conversation.sh "https://warpcast.com/username/0xabc..."
+
+# Get conversation with full reply depth and parent casts
+scripts/fc_get_conversation.sh 0xabc123... --reply-depth 3 --parent-casts
+
+# Get conversation for a user with viewer context
+scripts/fc_get_conversation.sh 0xabc123... --viewer-fid 4905
+
+# Sort by most recent first
+scripts/fc_get_conversation.sh 0xabc123... --sort desc_chron
+
+# Paginate with cursor
+scripts/fc_get_conversation.sh 0xabc123... --cursor "eyJwYWdlIjoxfQ=="
+```
+
+**Options:**
+| Option | Description |
+|--------|-------------|
+| `--type TYPE` | Identifier type: "hash" (default for 0x...) or "url" |
+| `--reply-depth N` | Depth of replies (default: 2) |
+| `--parent-casts` | Include all parent casts in chronological order |
+| `--viewer-fid FID` | FID for viewer context (respects mutes/blocks) |
+| `--sort TYPE` | Sort: `chron`, `desc_chron`, `algorithmic` (default: chron) |
+| `--fold DIR` | Fold low-quality: `above` or `below` |
+| `--limit N` | Number of casts (1-50, default: 20) |
+| `--cursor CURSOR` | Pagination cursor |
+
+**Output:**
+- `conversation` — array of all casts in thread (root to leaf)
+- `next` — pagination cursor if more results available
+
+**Example response structure:**
+```json
+{
+  "conversation": [
+    {"hash": "...", "text": "Root cast", "author": {...}, ...},
+    {"hash": "...", "text": "Reply", "author": {...}, ...}
+  ],
+  "next": {"cursor": "..."}
+}
+```
+
 ### fc_user.sh — User Lookup
 
 ```bash
@@ -189,6 +240,22 @@ while true; do
 done
 ```
 
+### Get full conversation context from a cast
+
+```bash
+# Get full thread with parent context
+CONV=$(scripts/fc_get_conversation.sh 0xabc123... --parent-casts --reply-depth 3)
+
+# Extract root cast
+ROOT=$(echo "$CONV" | jq '.conversation | first')
+
+# Count total replies
+REPLY_COUNT=$(echo "$CONV" | jq '.conversation | length - 1')
+
+echo "Root: $ROOT"
+echo "Replies: $REPLY_COUNT"
+```
+
 ### Post with media (upload first, then embed)
 
 ```bash
@@ -212,11 +279,11 @@ Not all endpoints are available on Neynar's free plan.
 | User lookup (username/FID/address) | fc_user.sh | ✅ |
 | Like / recast | fc_react.sh | ✅ |
 | Following feed | fc_feed.sh --following | ✅ |
+| Conversation thread | fc_get_conversation.sh | ✅ |
 | Channel feed | fc_feed.sh --channel | ❌ Paid |
 | Cast search | fc_search.sh | ❌ Paid |
 | Channel search/details/trending | fc_channels.sh | ❌ Paid |
 | Delete cast | fc_delete.sh | ❌ Paid |
-| Thread/conversation | fc_feed.sh --thread | ✅ |
 
 Scripts that hit paid endpoints will exit non-zero with a clear `402 PaymentRequired` error.
 
