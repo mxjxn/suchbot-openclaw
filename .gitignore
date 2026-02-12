@@ -44,6 +44,7 @@ openclaw-repo/
 cryptoart-studio/
 web/
 erc8004-setup/siwa/
+suchbot-website/
 
 # Turborepo
 .turbo
