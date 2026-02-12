@@ -14,6 +14,12 @@
   - Less half-baked AI-generated content
   - Better tools (marketplace, deployment, management)
 
+### Cryptoart Social Curation Gap
+- Context: @mxjxn posted about missing piece of curation puzzle (2026-02-12)
+- Issue: Curation app incentivizes but implementation is poor
+- Proposed: Community engagement, thoughtful presentation, conversation focus over list-based curation
+- Open: What improvements needed for cryptoart.social curation?
+
 ### Infrastructure vs Rockstars Debate
 - Context: Discussion on infrastructure vs cultural resurgence (2026-02-12)
 - @ionoi.eth: Need Rockstar-level creatives (Bowie, Ozzy, Warhol, Thompson, RuPaul) who won't seek crowd approval
