@@ -3,12 +3,16 @@ set -euo pipefail
 
 # fc_thread.sh — Build and post a Farcaster thread
 # Posts root cast, then child casts as replies to build a thread.
+# WARNING: Complex text (quotes, special chars) should use --file option.
 
 NEYNAR_BASE="https://api.neynar.com/v2/farcaster"
 API_KEY="${NEYNAR_API_KEY:-}"
 SIGNER="${NEYNAR_SIGNER_UUID:-}"
 CHANNEL=""
 CHILD_TEXTS=()
+ROOT_FILE=""
+CHILD_FILES=()
+DRY_RUN=false
 
 # Colors for output
 RED='\033[0;31m'
@@ -28,9 +32,12 @@ Options:
   --api-key KEY        Neynar API key (or set NEYNAR_API_KEY)
   --signer UUID       Signer UUID (or set NEYNAR_SIGNER_UUID)
   --channel ID        Post to channel (e.g. "cryptoart", "base")
+  --file PATH         Read root text from file (avoids shell quoting issues)
+  --dry-run           Validate without posting
 
 Child format (each child):
-  --text TEXT           Plain text content
+  --text TEXT           Plain text content (avoid special chars)
+  --file PATH           Read child text from file (recommended for complex text)
   --listing LISTING    Format: "• @author — Name (TYPE) — price — link"
   --artwork HASH       Embed a cast by hash
   --auction TYPE        "auction" or "fixed" for duration display
@@ -63,6 +70,8 @@ while [[ $# -gt 0 ]]; do
     --api-key) API_KEY="$2"; shift 2 ;;
     --signer) SIGNER="$2"; shift 2 ;;
     --channel) CHANNEL="$2"; shift 2 ;;
+    --file) ROOT_FILE="$2"; shift 2 ;;
+    --dry-run) DRY_RUN=true; shift ;;
     --text) CHILD_TEXTS+=("$2"); shift 2 ;;
     --listing) LISTINGS+=("$2"); shift 2 ;;
     --artwork) ARTWORKS+=("$2"); shift 2 ;;
@@ -82,13 +91,30 @@ if [[ -z "$SIGNER" ]]; then
   exit 1
 fi
 
-if [[ $# -eq 0 ]]; then
-  echo '{"error":"Root message required"}' >&2
+if [[ $# -eq 0 && -z "$ROOT_FILE" ]]; then
+  echo '{"error":"Root message or --file required"}' >&2
   exit 1
 fi
 
-ROOT_TEXT="$1"
-shift  # Remove root from args, now $@ are children
+# Read root text from file or argument
+if [[ -n "$ROOT_FILE" ]]; then
+  if [[ ! -f "$ROOT_FILE" ]]; then
+    echo '{"error":"Root file not found"}' >&2
+    exit 1
+  fi
+  ROOT_TEXT=$(cat "$ROOT_FILE")
+else
+  ROOT_TEXT="$1"
+  shift  # Remove root from args, now $@ are children
+fi
+
+# Dry run - just validate without posting
+if [[ "$DRY_RUN" = true ]]; then
+  echo -e "${GREEN}Dry run - validating thread...${NC}"
+  echo "Root text length: ${#ROOT_TEXT} chars"
+  echo "Children to post: $@"
+  exit 0
+fi
 
 # Post root cast
 echo -e "${GREEN}Posting root cast...${NC}"
@@ -132,6 +158,77 @@ for arg in "$@"; do
 
       POST_BODY=$(jq -n --arg s "$SIGNER" --arg t "$CHILD_TEXT" --arg p "$PARENT_HASH" '{signer_uuid: $s, text: $t, parent: $p}')
       [[ -n "$CHANNEL" ]] && POST_BODY=$(echo "$POST_BODY" | jq --arg c "$CHANNEL" '. + {channel_id: $c}')
+
+      RESPONSE=$(curl -sS --connect-timeout 10 --max-time 30 -w "\n%{http_code}" -X POST "$NEYNAR_BASE/cast" \
+        -H "x-api-key: $API_KEY" \
+        -H "Content-Type: application/json" \
+        -d "$POST_BODY")
+
+      HTTP_CODE=$(echo "$RESPONSE" | tail -1)
+      RESP_BODY=$(echo "$RESPONSE" | sed '$d')
+
+      if [[ "$HTTP_CODE" -ge 200 && "$HTTP_CODE" -lt 300 ]]; then
+        CHILD_HASH=$(echo "$RESP_BODY" | jq -r '.cast.hash')
+        echo -e "${GREEN}✓ Child cast posted${NC}"
+        echo -e "  Hash: $CHILD_HASH"
+
+        # Update parent hash for next child
+        PARENT_HASH="$CHILD_HASH"
+        CHILD_COUNT=$((CHILD_COUNT + 1))
+
+        # Small delay between posts to avoid rate limits
+        if [[ $CHILD_COUNT -lt $# ]]; then
+          sleep 1
+        fi
+      else
+        echo "$RESP_BODY" | jq -r --argjson s "$HTTP_CODE" '. + {status: $s}' >&2
+        exit 1
+      fi
+      ;;
+
+    --file)
+      CHILD_FILE="$2"
+      shift 2
+
+      if [[ ! -f "$CHILD_FILE" ]]; then
+        echo "{\"error\":\"Child file not found: $CHILD_FILE\"}" >&2
+        exit 1
+      fi
+
+      CHILD_TEXT=$(cat "$CHILD_FILE")
+
+      # Post child cast as reply
+      echo -e "${GREEN}Posting child #$((CHILD_COUNT + 1))...${NC}"
+
+      POST_BODY=$(jq -n --arg s "$SIGNER" --arg t "$CHILD_TEXT" --arg p "$PARENT_HASH" '{signer_uuid: $s, text: $t, parent: $p}')
+      [[ -n "$CHANNEL" ]] && POST_BODY=$(echo "$POST_BODY" | jq --arg c "$CHANNEL" '. + {channel_id: $c}')
+
+      RESPONSE=$(curl -sS --connect-timeout 10 --max-time 30 -w "\n%{http_code}" -X POST "$NEYNAR_BASE/cast" \
+        -H "x-api-key: $API_KEY" \
+        -H "Content-Type: application/json" \
+        -d "$POST_BODY")
+
+      HTTP_CODE=$(echo "$RESPONSE" | tail -1)
+      RESP_BODY=$(echo "$RESPONSE" | sed '$d')
+
+      if [[ "$HTTP_CODE" -ge 200 && "$HTTP_CODE" -lt 300 ]]; then
+        CHILD_HASH=$(echo "$RESP_BODY" | jq -r '.cast.hash')
+        echo -e "${GREEN}✓ Child cast posted${NC}"
+        echo -e "  Hash: $CHILD_HASH"
+
+        # Update parent hash for next child
+        PARENT_HASH="$CHILD_HASH"
+        CHILD_COUNT=$((CHILD_COUNT + 1))
+
+        # Small delay between posts to avoid rate limits
+        if [[ $CHILD_COUNT -lt $# ]]; then
+          sleep 1
+        fi
+      else
+        echo "$RESP_BODY" | jq -r --argjson s "$HTTP_CODE" '. + {status: $s}' >&2
+        exit 1
+      fi
+      ;;
 
       RESPONSE=$(curl -sS --connect-timeout 10 --max-time 30 -w "\n%{http_code}" -X POST "$NEYNAR_BASE/cast" \
         -H "x-api-key: $API_KEY" \
