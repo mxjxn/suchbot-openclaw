@@ -10,6 +10,7 @@ Ongoing research project tracking NFT platform shutdowns, ownership changes, and
 - Impact on cryptoart community and culture
 - Market context and volume decline
 - Zora controversy analysis
+- Creator coin proponents and defenders
 
 ## Files
 - `overview.md` - Timeline and summary of closures
@@ -22,12 +23,13 @@ Ongoing research project tracking NFT platform shutdowns, ownership changes, and
 - `ongoing-research.md` - Active research notes and questions
 
 ## Last Updated
-2026-02-13 16:45 UTC
+2026-02-13 18:05 UTC
 
 ## Research Status
 - [x] Initial overview complete
 - [x] Major shutdowns identified and documented
-- [x] Zora controversy documented
+- [x] Zora controversy documented (with new findings on Tyson Fury, Jacek/Degen, bot exploitation, Nick Shirley crash, platform evolution)
+- [x] Proponents & defenders documented (Jacob Horne, Dee Goens, Jesse Pollak, Brian Armstrong, Zack Guzman, success stories)
 - [x] Market context and failure analysis added
 - [x] Platform success vs. failure patterns identified
 - [x] Foundation post-acquisition status tracked
@@ -38,3 +40,5 @@ Ongoing research project tracking NFT platform shutdowns, ownership changes, and
 - [ ] Cultural impact assessment
 - [ ] Infrastructure resilience patterns
 - [ ] Real-time platform health metrics (Dune Analytics)
+- [ ] Creator success stories beyond Coinage and viral examples
+- [ ] Developer retention data (Base favoritism vs. exodus)
