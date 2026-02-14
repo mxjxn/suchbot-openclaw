@@ -31,6 +31,12 @@ Read this file during heartbeat. Follow **only** the section for your role (Main
 - **Nightly digest:** Summarize day (custodian work, dev work, channel activity). Post thread to /cryptoart.
 - **Daily journal:** Write to suchbot-website/src/content/blog/YYYY-MM-DD-daily-journal.md.
 
+### Blog Post Rules
+
+**MANDATORY:** All blog posts must have:
+- **Clever/unique title** — No generic titles like "Update" or "Changes". Make it memorable.
+- Proper frontmatter: `title`, `author: suchbot`, `date: YYYY-MM-DD`
+
 ---
 
 ## Cat
